@@ -1,19 +1,20 @@
 import {
   IsString,
-  IsNotEmpty,
+  IsOptional,
   MinLength,
   MaxLength,
-  IsOptional,
   IsDateString,
+  IsEnum,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { TodoStatus } from '../todo.schema';
 
-export class CreateTodoDto {
+export class UpdateTodoDto {
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(4, { message: 'Name must be at least 4 characters long' })
   @MaxLength(20, { message: 'Name must not exceed 20 characters' })
-  name: string;
+  name?: string;
 
   @IsString()
   @IsOptional()
@@ -21,19 +22,22 @@ export class CreateTodoDto {
   description?: string;
 
   @IsDateString()
+  @IsOptional()
   @Transform(({ value }) => {
-    const date = new Date(value);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    if (value) {
+      const date = new Date(value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    if (date < today) {
-      throw new Error('Due date cannot be in the past');
+      if (date < today) {
+        throw new Error('Due date cannot be in the past');
+      }
     }
-    return value;
+    return value as string;
   })
-  dueDate: string;
+  dueDate?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  userId: string;
+  @IsEnum(TodoStatus)
+  @IsOptional()
+  status?: TodoStatus;
 }

@@ -6,13 +6,12 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
   ValidationPipe,
   UsePipes,
 } from '@nestjs/common';
-import { TodoService } from '../services/todo.service';
-import { CreateTodoDto } from '../dto/create-todo.dto';
-import { UpdateTodoDto } from '../dto/update-todo.dto';
+import { TodoService } from './todo.service';
+import { CreateTodoDto } from '../todo/dto/create-todo.dto';
+import { UpdateTodoDto } from '../todo/dto/update-todo.dto';
 
 @Controller('todos')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -29,13 +28,14 @@ export class TodoController {
   }
 
   @Get()
-  async findAll(@Query('userId') userId: string) {
+  async findAll() {
     try {
-      const todos = await this.todoService.findAllByUser(userId);
+      const todos = await this.todoService.findAll();
       return {
         message: 'Todos retrieved successfully',
         data: todos,
       };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       return {
         message: 'No data recorded',

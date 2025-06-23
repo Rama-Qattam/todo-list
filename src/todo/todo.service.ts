@@ -1,22 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Todo, TodoDocument } from '../schemas/todo.schema';
-import { CreateTodoDto } from '../dto/create-todo.dto';
-import { UpdateTodoDto } from '../dto/update-todo.dto';
+import { Model, Types } from 'mongoose';
+import { Todo, TodoDocument } from '../todo/todo.schema';
+import { CreateTodoDto } from '../todo/dto/create-todo.dto';
+import { UpdateTodoDto } from '../todo/dto/update-todo.dto';
 
 @Injectable()
 export class TodoService {
   constructor(@InjectModel(Todo.name) private todoModel: Model<TodoDocument>) {}
 
   async create(createTodoDto: CreateTodoDto): Promise<Todo> {
-    const createdTodo = new this.todoModel(createTodoDto);
+    const createdTodo = new this.todoModel({
+      ...createTodoDto,
+      userId: new Types.ObjectId(createTodoDto.userId),
+    });
     return createdTodo.save();
   }
 
-  async findAllByUser(userId: string): Promise<Todo[]> {
+  async findAll(): Promise<Todo[]> {
     const todos = await this.todoModel
-      .find({ userId, isDeleted: false })
+      .find({ isDeleted: false })
       .sort({ createdAt: -1 })
       .exec();
 

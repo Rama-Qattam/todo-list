@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type TodoDocument = Todo & Document;
 
@@ -28,16 +28,15 @@ export class Todo {
   })
   status: TodoStatus;
 
-  @Prop({ required: true })
-  userId: string;
-
   @Prop({ default: false })
   isDeleted: boolean;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  userId: Types.ObjectId;
 }
 
 export const TodoSchema = SchemaFactory.createForClass(Todo);
 
-// Auto-generate ID based on name if not provided
 TodoSchema.pre('save', function () {
   if (!this.id) {
     this.id = this.name.toLowerCase().replace(/\s+/g, '-');
